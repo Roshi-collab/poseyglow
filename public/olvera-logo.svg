@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" role="img" aria-labelledby="title desc">
+  <title id="title">Olvera logo</title>
+  <desc id="desc">Olvera wordmark with a botanical O symbol</desc>
+  <g fill="none" stroke="#27322d" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="30" cy="32" r="21" stroke-width="2"/>
+    <path d="M30 11c9 5 13 12 13 21 0 10-6 17-13 21" stroke="#8b5a53" stroke-width="1.5"/>
+    <path d="M30 32c-7-7-8-14-3-18 7 3 9 9 3 18Z" fill="#dce4d9" stroke="#27322d" stroke-width="1.5"/>
+    <path d="M30 32c7 1 13 6 14 13-8 2-13-3-14-13Z" fill="#ecd8d2" stroke="#27322d" stroke-width="1.5"/>
+  </g>
+  <text x="66" y="42" fill="#27322d" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="600" letter-spacing="-1">olvera</text>
+  <circle cx="220" cy="15" r="2.5" fill="#8b5a53"/>
+</svg>

@@ -89,7 +89,7 @@ function ProductDetails() {
       <p className="font-semibold">${Number(product.price).toFixed(2)}</p>
       {product.source && (
         <p className="mt-2 text-sm text-gray-500">
-          Source: {product.source}
+          Source: {product.source === "PoseyGlow Collection" ? "Olvera Collection" : product.source}
         </p>
       )}
       <button

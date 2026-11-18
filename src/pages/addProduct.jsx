@@ -22,7 +22,7 @@ function AddProduct() {
       skinTypes: [formData.get("skinType")],
       audience,
       thumbnail: formData.get("thumbnail") || "",
-      source: "PoseyGlow Collection",
+      source: "Olvera Collection",
     };
 
     try {

@@ -1,30 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "./productCard";
+import { SKINCARE_FALLBACK } from "../productsData";
 
 const MAKEUP_API = "https://makeup-api.herokuapp.com/api/v1/products.json";
 const PRODUCTS_API = "http://localhost:3001/products";
-
-const SKINCARE_FALLBACK = [
-  { id: "care-cleansing-gel", title: "Gentle Hydrating Cleansing Gel", description: "A gentle daily face cleanser for removing impurities without stripping moisture.", price: 18, category: "skin-care", skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-moisturizer", title: "Barrier Repair Face Moisturizer", description: "Daily face moisturizer that helps hydrate and support the skin barrier.", price: 24, category: "skin-care", skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-niacinamide", title: "Niacinamide 10% Serum", description: "Lightweight serum that helps visibly balance excess oil and refine pores.", price: 12, category: "serums", skinTypes: ["oily", "combination", "normal"], thumbnail: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-hyaluronic", title: "Hyaluronic Acid Hydrating Serum", description: "Hydrating serum formulated to help skin look smooth and plump.", price: 15, category: "serums", skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-sunscreen", title: "Daily Mineral Sunscreen SPF 50", description: "Broad-spectrum sunscreen for everyday protection against UVA and UVB rays.", price: 28, category: "sunscreen", skinTypes: ["all"], thumbnail: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-toner", title: "Alcohol-Free Calming Toner", description: "Gentle toner that refreshes and hydrates sensitive or dry skin.", price: 14, category: "toners", skinTypes: ["dry", "sensitive", "normal"], thumbnail: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-bha", title: "2% BHA Pore Clarifying Toner", description: "Leave-on exfoliating toner that helps unclog pores and smooth texture.", price: 20, category: "toners", skinTypes: ["oily", "combination"], thumbnail: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-vitamin-c", title: "Vitamin C Brightening Serum", description: "Antioxidant serum that helps improve dullness and uneven-looking tone.", price: 22, category: "serums", skinTypes: ["normal", "dry", "combination"], thumbnail: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-cleansing-balm", title: "Nourishing Cleansing Balm", description: "Melting balm cleanser that removes makeup and daily buildup while nourishing skin.", price: 26, category: "skin-care", skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-retinol", title: "Gentle Retinol Night Serum", description: "Nighttime treatment designed to improve the appearance of fine lines and texture.", price: 25, category: "anti-aging", audience: ["women", "men"], skinTypes: ["normal", "oily", "combination"], thumbnail: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "aging-peptide", title: "Advanced Peptide Firming Serum", description: "A lightweight peptide serum that supports firmer-looking skin and helps soften fine lines.", price: 38, category: "anti-aging", audience: ["women", "men"], skinTypes: ["all"], thumbnail: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "aging-wrinkle-cream", title: "Wrinkle Defense Face Cream", description: "Rich daily cream formulated with hydrating and smoothing ingredients for mature skin.", price: 42, category: "anti-aging", audience: ["women"], skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "aging-men-cream", title: "Men's Firming Moisturizer", description: "Fast-absorbing anti-aging moisturizer that hydrates and helps improve the look of rough texture.", price: 34, category: "anti-aging", audience: ["men"], skinTypes: ["normal", "oily", "combination"], thumbnail: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "aging-eye", title: "Renewing Caffeine Eye Treatment", description: "Cooling eye treatment that helps reduce the appearance of puffiness and crow's feet.", price: 29, category: "anti-aging", audience: ["women", "men"], skinTypes: ["all"], thumbnail: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "aging-neck", title: "Lift & Firm Neck Cream", description: "Nourishing cream for the neck and décolletage to help visibly smooth and firm the skin.", price: 36, category: "anti-aging", audience: ["women", "men"], skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-eye-cream", title: "Hydrating Firming Eye Cream", description: "A gentle eye cream that hydrates, smooths, and helps reduce the look of fine lines.", price: 32, category: "eye-cream", audience: ["women", "men"], skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-exfoliator", title: "Gentle Renewal Exfoliator", description: "A smoothing face exfoliator that helps remove dull surface cells and refine texture.", price: 24, category: "exfoliator", audience: ["women", "men"], skinTypes: ["normal", "oily", "combination"], thumbnail: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-aging-cream", title: "Daily Anti-Aging Face Cream", description: "A nourishing anti-aging cream that helps improve firmness and the appearance of wrinkles.", price: 40, category: "anti-aging-cream", audience: ["women", "men"], skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-  { id: "care-lip-care", title: "Restoring Overnight Lip Care", description: "A conditioning lip treatment that softens dry lips and supports a smoother, healthy-looking finish.", price: 16, category: "lip-care", audience: ["women", "men"], skinTypes: ["all"], thumbnail: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
-];
 
 function normalizeTitle(value = "") {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -91,13 +71,37 @@ function normalizeMakeupProduct(product) {
   };
 }
 
-function Products({ addToCart }) {
+const concernAliases = {
+  acne: ["acne", "pore", "clarifying", "exfoliat"],
+  melasma: ["melasma", "dark spot", "brighten", "uneven", "vitamin c"],
+  aging: ["aging", "fine line", "wrinkle", "firm", "retinol", "peptide"],
+  "under-eyes": ["eye", "caffeine", "puffiness", "dark"],
+  texture: ["texture", "exfoliat", "dull", "smooth"],
+  sensitive: ["sensitive", "gentle", "calming", "irrit"],
+  "chapped lips": ["lip", "balm", "dry", "conditioning"],
+  "cold sores": ["lip", "cold sore", "irritation"],
+};
+
+function Products() {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [skinType, setSkinType] = useState("all");
   const [audience, setAudience] = useState("all");
+
+  useEffect(() => {
+    const initialCategory = searchParams.get("category") || "all";
+    const initialSkinType = searchParams.get("skinType") || "all";
+    const initialAudience = searchParams.get("audience") || "all";
+    const initialSearch = searchParams.get("search") || "";
+
+    setCategory(initialCategory);
+    setSkinType(initialSkinType);
+    setAudience(initialAudience);
+    setSearch(initialSearch);
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadProducts() {
@@ -161,7 +165,13 @@ function Products({ addToCart }) {
 
   const visibleProducts = products.filter((product) => {
     const searchText = `${product.title || ""} ${product.description || ""}`.toLowerCase();
-    return searchText.includes(search.toLowerCase().trim())
+    const normalizedSearch = search.toLowerCase().trim();
+    const aliases = concernAliases[normalizedSearch];
+    const matchesSearch = !normalizedSearch
+      || searchText.includes(normalizedSearch)
+      || (aliases && aliases.some((alias) => searchText.includes(alias)));
+
+    return matchesSearch
       && (category === "all" || product.category === category)
       && (!product.skinTypes || skinType === "all" || product.skinTypes.includes("all") || product.skinTypes.includes(skinType))
       && (audience === "all" || !product.audience || product.audience.includes(audience));
@@ -276,7 +286,7 @@ function Products({ addToCart }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleProducts.length === 0 && <p>No products match these filters.</p>}
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </main>

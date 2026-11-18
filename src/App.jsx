@@ -1,5 +1,6 @@
 import { Link, Route, Routes } from 'react-router-dom'
 
+import Home from './pages/Home'
 import Products from './pages/Products'
 import ProductDetails from './pages/productDetails'
 import AddProduct from './pages/addProduct'
@@ -11,18 +12,19 @@ function App() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b px-4 py-4 sm:px-6">
-        <Link to="/" className="text-2xl font-bold tracking-wide sm:text-3xl">
-          PoseyGlow
+      <header className="site-header">
+        <Link to="/" className="brand-wordmark" aria-label="Olvera home">
+          <img src="/olvera-logo.svg" alt="Olvera" />
         </Link>
-        <nav className="flex gap-3 text-sm sm:gap-5" aria-label="Main navigation">
-          <Link to="/products">Products</Link>
+        <nav className="site-nav" aria-label="Main navigation">
+          <Link to="/products">Shop</Link>
+          <Link to="/#about">Our story</Link>
           <Link to="/add-product">Add product</Link>
-          <Link to="/cart">Cart ({cart.length})</Link>
+          <Link to="/cart" className="nav-cart">Bag ({cart.length})</Link>
         </nav>
       </header>
       <Routes>
-        <Route path="/" element={<Products />} />
+        <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/add-product" element={<AddProduct />} />

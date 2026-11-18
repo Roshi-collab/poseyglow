@@ -1,16 +1,41 @@
-# React + Vite
+# Olveraa
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A skincare shop built with React, Vite and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install dependencies: `npm install`
+2. Start the app and local API: `npm run dev`
+3. Open the Vite address shown in the terminal (usually http://localhost:5173)
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React + Vite
+- Tailwind CSS
+- React Router
+- json-server
+- Vitest and Testing Library
 
-## Expanding the Oxlint configuration
+## Architecture
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- `src/pages/`: Home, Products, ProductDetails, AddProduct, and Cart pages
+- `src/components/` may hold reusable UI components
+- `src/CartContext.jsx`: shared shopping cart state
+- `src/App.jsx`: application layout and routes
+- `src/main.jsx`: application entry point
+- `db.json`: local product data
+
+## Routes
+
+- `/`: Home
+- `/products`: Product catalog
+- `/products/:id`: Product details
+- `/add-product`: Add a product
+- `/cart`: Shopping cart
+
+## Scripts
+
+- `npm run dev`: Start Vite and json-server
+- `npm run build`: Create a production build
+- `npm run lint`: Run Oxlint
+- `npm test`: Run the Vitest suite
