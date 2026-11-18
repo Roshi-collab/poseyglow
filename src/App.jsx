@@ -1,27 +1,32 @@
-import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Link, Route, Routes } from 'react-router-dom'
 
 import Products from './pages/Products'
 import ProductDetails from './pages/productDetails'
 import AddProduct from './pages/addProduct'
 import Cart from './pages/Cart'
+import { useCart } from './CartContext'
 
 function App() {
-  const [cart, setCart] = useState([])
-
-  const addToCart = (product) => setCart([...cart, product])
+  const { cart } = useCart()
 
   return (
     <>
-      <header className="border-b px-6 py-4 text-center">
-        <h1 className="text-3xl font-bold tracking-wide">PoseyGlow</h1>
+      <header className="flex items-center justify-between border-b px-4 py-4 sm:px-6">
+        <Link to="/" className="text-2xl font-bold tracking-wide sm:text-3xl">
+          PoseyGlow
+        </Link>
+        <nav className="flex gap-3 text-sm sm:gap-5" aria-label="Main navigation">
+          <Link to="/products">Products</Link>
+          <Link to="/add-product">Add product</Link>
+          <Link to="/cart">Cart ({cart.length})</Link>
+        </nav>
       </header>
       <Routes>
-        <Route path="/" element={<Products addToCart={addToCart} />} />
-        <Route path="/products" element={<Products addToCart={addToCart} />} />
-        <Route path="/products/:id" element={<ProductDetails addToCart={addToCart} />} />
+        <Route path="/" element={<Products />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/add-product" element={<AddProduct />} />
-        <Route path="/cart" element={<Cart cart={cart} />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </>
   )

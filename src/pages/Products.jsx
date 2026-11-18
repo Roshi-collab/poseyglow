@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ProductCard from "./productCard";
 
 const MAKEUP_API = "https://makeup-api.herokuapp.com/api/v1/products.json";
+const PRODUCTS_API = "http://localhost:3001/products";
 
 const SKINCARE_FALLBACK = [
   { id: "care-cleansing-gel", title: "Gentle Hydrating Cleansing Gel", description: "A gentle daily face cleanser for removing impurities without stripping moisture.", price: 18, category: "skin-care", skinTypes: ["dry", "normal", "sensitive"], thumbnail: "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=400&q=80", source: "PoseyGlow Collection" },
@@ -93,54 +94,61 @@ function normalizeMakeupProduct(product) {
 function Products({ addToCart }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [skinType, setSkinType] = useState("all");
   const [audience, setAudience] = useState("all");
 
   useEffect(() => {
     async function loadProducts() {
-      setLoading(true);
-      setError(null);
-      setProducts(SKINCARE_FALLBACK);
-      setLoading(false);
-
       try {
-        const productTypes = ["moisturizer", "cleanser", "serum", "toner", "sunscreen"];
-        const makeupResponses = await Promise.allSettled(
-          productTypes.map((type) => fetch(`${MAKEUP_API}?product_type=${type}`).then((response) => {
-            if (!response.ok) throw new Error(`Could not load ${type}`);
-            return response.json();
-          }))
-        );
+        const [makeupResponses, localResponse] = await Promise.all([
+          Promise.allSettled(
+            ["moisturizer", "cleanser", "serum", "toner", "sunscreen"].map((type) =>
+              fetch(`${MAKEUP_API}?product_type=${type}`).then((response) => {
+                if (!response.ok) throw new Error(`Could not load ${type}`);
+                return response.json();
+              })
+            )
+          ),
+          fetch(PRODUCTS_API).then((response) =>
+            response.ok ? response.json() : []
+          ),
+        ]);
 
         const makeupProducts = makeupResponses
           .filter((response) => response.status === "fulfilled")
           .flatMap((response) => response.value)
           .filter((product) => product?.name && isSkinCareProduct(product));
 
-        const normalized = makeupProducts.map(normalizeMakeupProduct).filter((product) => product.title && (product.thumbnail || product.description));
+        const normalized = makeupProducts
+          .map(normalizeMakeupProduct)
+          .filter((product) => product.title && (product.thumbnail || product.description));
 
         const uniqueProducts = [];
         const seenTitles = new Set();
-        for (const product of normalized) {
+        normalized.forEach((product) => {
           const normalizedTitle = normalizeTitle(product.title);
-          if (!normalizedTitle || seenTitles.has(normalizedTitle)) continue;
-          seenTitles.add(normalizedTitle);
-          uniqueProducts.push(product);
-        }
+          if (normalizedTitle && !seenTitles.has(normalizedTitle)) {
+            seenTitles.add(normalizedTitle);
+            uniqueProducts.push(product);
+          }
+        });
 
-        if (uniqueProducts.length === 0) {
+        const catalog = uniqueProducts.length
+          ? [...SKINCARE_FALLBACK.filter((fallback) =>
+              !uniqueProducts.some((live) => normalizeTitle(live.title) === normalizeTitle(fallback.title))
+            ), ...uniqueProducts]
+          : SKINCARE_FALLBACK;
+
+        setProducts([...localResponse, ...catalog]);
+      } catch {
+        try {
+          const localResponse = await fetch(PRODUCTS_API).then((response) => response.json());
+          setProducts([...localResponse, ...SKINCARE_FALLBACK]);
+        } catch {
           setProducts(SKINCARE_FALLBACK);
-        } else {
-          const liveTitles = new Set(uniqueProducts.map((product) => normalizeTitle(product.title)));
-          const fallbackOnly = SKINCARE_FALLBACK.filter((product) => !liveTitles.has(normalizeTitle(product.title)));
-          setProducts([...fallbackOnly, ...uniqueProducts]);
         }
-      } catch (requestError) {
-        setProducts(SKINCARE_FALLBACK);
-        setError(null);
-        console.warn(requestError.message || "Could not load live products.");
       } finally {
         setLoading(false);
       }
@@ -150,11 +158,12 @@ function Products({ addToCart }) {
   }, []);
 
   if (loading) return <p className="p-6">Loading skincare products...</p>;
-  if (error) return <p className="p-6 text-red-600">{error}</p>;
 
   const visibleProducts = products.filter((product) => {
-    return (category === "all" || product.category === category)
-      && (skinType === "all" || product.skinTypes.includes("all") || product.skinTypes.includes(skinType))
+    const searchText = `${product.title || ""} ${product.description || ""}`.toLowerCase();
+    return searchText.includes(search.toLowerCase().trim())
+      && (category === "all" || product.category === category)
+      && (!product.skinTypes || skinType === "all" || product.skinTypes.includes("all") || product.skinTypes.includes(skinType))
       && (audience === "all" || !product.audience || product.audience.includes(audience));
   });
 
@@ -250,7 +259,20 @@ function Products({ addToCart }) {
         </nav>
       </aside>
       <main className="min-w-0 flex-1">
-        <h1 className="mb-4 text-2xl font-bold">Our Products</h1>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <h1 className="text-2xl font-bold">Our Products</h1>
+          <label className="w-full sm:w-72">
+            <span className="mb-1 block text-sm font-semibold">Search products</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name or description"
+              className="w-full rounded-lg border border-[#d9cbb8] bg-white px-3 py-2"
+            />
+          </label>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleProducts.length === 0 && <p>No products match these filters.</p>}
           {visibleProducts.map((product) => (
